@@ -17,17 +17,17 @@ usuarios = {
 
 # Instanciamos un gestor (esto debería ir a un archivo separado si crece)
 gestor = GestorCierreInspeccion(
-    empleado_logueado="Juan Pérez",
-    fecha_actual=datetime.now(),
+    empleadoLogueado="Juan Pérez",
+    fechaActual=datetime.now(),
     mail="juan@empresa.com",
-    sesion_actual="SESION123"
+    sesionActual="SESION123"
 )
 
 # Cargamos una orden simulada completamente realizada
 orden_simulada = OrdenDeInspeccion(
-    numero_orden="123",
-    fecha_inicio=datetime.now(),
-    estado="Completamente Realizada"
+    numeroOrden="123",
+    fechaInicio=datetime.now(),
+    estado= Estado("Completamente Realizada",)
 )
 gestor.ordenes.append(orden_simulada)
 
@@ -76,9 +76,9 @@ def confirmar():
     if not orden:
         return jsonify({"error": "Orden no encontrada"}), 404
     
-    gestor.ingresar_observacion_cierre(observacion)
-    gestor.tomar_seleccion_motivos(motivos)
-    gestor.confirmar_cierre(orden_id)
+    gestor.ingresarObservacionCierre(observacion)
+    gestor.tomarSeleccionMotivos(motivos)
+    gestor.confirmarCierre(orden_id)
 
     return jsonify({"mensaje": f"Cierre de orden {orden_id} solicitado."}), 200
 
@@ -89,14 +89,14 @@ def cerrar_orden():
     
     # Generar 10 órdenes aleatorias con fecha_fin
     ordenes = []
-    base_fecha = datetime.now()
+    baseFecha = datetime.now()
     for i in range(10):
         dias = random.randint(1, 100)
-        fecha_fin = base_fecha - timedelta(days=dias)
+        fechaFin = baseFecha - timedelta(days=dias)
         orden = OrdenDeInspeccion(
-            numero_orden=str(1000 + i),
-            fecha_inicio=fecha_fin - timedelta(days=random.randint(1, 10)),
-            fecha_fin=fecha_fin,
+            numeroOrden=str(1000 + i),
+            fechaInicio=fechaFin - timedelta(days=random.randint(1, 10)),
+            fechaFin=fechaFin,
             estado="Completamente Realizada"
         )
         # Agregamos un id único para el select
@@ -104,7 +104,7 @@ def cerrar_orden():
         ordenes.append(orden)
     
     # Ordenar por fecha_fin descendente (más reciente primero)
-    ordenes.sort(key=lambda o: o.fecha_fin, reverse=True)
+    ordenes.sort(key=lambda o: o.fechaFin, reverse=True)
     
     return render_template(
         "cerrar_orden.html",

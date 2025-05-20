@@ -24,3 +24,6 @@ class Estado:
 
     def sosAmbitoSismografo(self):
         return self.ambito.lower() == "sismografo"
+
+#for cambio in sismografo.cambiosEstado:
+#    print(f"Estado: {cambio.getEstado()}, Desde: {cambio.getFechaHoraInicio()}, Hasta: {cambio.getFechaHoraFin()}")

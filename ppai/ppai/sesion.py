@@ -1,10 +1,11 @@
 from datetime import datetime
+from usuario import Usuario
 
 class Sesion:
-    def __init__(self, usuario, fecha_hora_inicio: datetime, fecha_hora_fin: datetime = None):
+    def __init__(self, usuario: Usuario, fechaHoraInicio: datetime, fechaHoraFin: datetime = None):
         self.usuario = usuario
-        self.fecha_hora_inicio = fecha_hora_inicio
-        self.fecha_hora_fin = fecha_hora_fin
+        self.fechaHoraInicio = fechaHoraInicio
+        self.fechaHoraFin = fechaHoraFin
 
     def obtenerRILogueado(self):
-        return self.usuario.nombreUsuario
+        return self.usuario.getEmpleado()

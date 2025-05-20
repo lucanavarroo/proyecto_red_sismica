@@ -1,10 +1,10 @@
 class Rol:
-    def __init__(self, name: str, description: str):
-        self.nombre = name
-        self.descripcionRol = description
+    def __init__(self, nombre: str, descripcionRol: str):
+        self.nombre = nombre
+        self.descripcionRol = descripcionRol
 
     def __str__(self):
-        return f"Rol(name={self.name}, description={self.description})"
+        return f"Rol(nombre={self.nombre}, descripcion={self.descripcionRol})"
 
     def getNombreRol(self):
         return self.nombre
@@ -18,8 +18,5 @@ class Rol:
     def setDescripcionRol(self, descripcion: str):
         self.descripcionRol = descripcion
 
-    def sosResponsableReparacion(self):
-        if self.nombre == "Responsable de Reparacion":
-            return True
-        else:
-            return False
+    def sosResponsableDeReparacion(self):
+        return self.nombre.lower() == "responsable de reparacion"

@@ -9,7 +9,7 @@ class Empleado:
         self.rol = rol
 
     def esResponsableDeReparacion(self):
-        return self.rol.sosResponsableReparacion()
+        return self.rol.sosResponsableDeReparacion()
     def getNombre(self):
         return self.nombre
     def getApellido(self):

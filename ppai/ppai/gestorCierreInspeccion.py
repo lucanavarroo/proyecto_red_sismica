@@ -1,97 +1,109 @@
 from datetime import datetime
 from ordenDeInspeccion import OrdenDeInspeccion
-from pantalla_ccrs import PantallaCCRS
+from pantallaCCRS import PantallaCCRS
 from interfazNotificacionMail import InterfazNotificacionMail
 from sismografo import Sismografo
 from empleado import Empleado
 from typing import List, Tuple
+from sesion import Sesion
+from interfazCierreInspeccion import InterfazCierreInspeccion
+from interfazNotificacionMail import InterfazNotificacionMail
+from usuario import Usuario
+from estado import Estado
 
 class GestorCierreInspeccion:   
-    def __init__(self, empleado_logueado, fecha_actual, mail, sesion_actual):
-        self.empleado_logueado = empleado_logueado
-        self.fecha_actual = fecha_actual
-        self.mail = mail
-        self.sesion_actual = sesion_actual
-        self.ordenes = []  # Lista de órdenes que el gestor puede manipular
-        self.motivos = []  # Lista de tuplas (motivo, comentario)
-        self.observacion_cierre = ""
+    def __init__(self,
+    mails,
+    observacionCierre,
+    pantallaCierreInspeccion : InterfazCierreInspeccion,
+    listSeleccionMotivo = None,
+    listComentarioParaMotivo = None,
+    estadoCerrado: Estado = None,
+    listMotivoTipo = None,
+    listMailsResponsables = None,
+    observacionOrdenCierre = None,
+    ordenInspeccionSeleccionada: OrdenDeInspeccion = None,
+    estadoCompletamenteRealizado: Estado = None,
+    listOrdenesInspeccion = None,
+    pantallaCCRS: PantallaCCRS = None,
+    usuarioLogueado: Usuario = None,
+    pantallaMail: InterfazNotificacionMail = None,
+    sesionActual: Sesion = None, 
+    empleadoLogueado: Empleado = None,
+    fechaHoraActual: datetime = datetime.now()):
+        self.mails = mails
+        self.observacionCierre = observacionCierre
+        self.sesionActual = sesionActual
+        self.empleadoLogueado = empleadoLogueado
+        self.fechaHoraActual = fechaHoraActual
+        self.pantallaCierreInspeccion = pantallaCierreInspeccion
+        self.pantallaMail = pantallaMail
+        self.pantallaCCRS = pantallaCCRS
+        self.usuarioLogueado = usuarioLogueado
+        self.listOrdenesInspeccion = listOrdenesInspeccion
+        self.estadoCompletamenteRealizado = estadoCompletamenteRealizado
+        self.ordenInspeccionSeleccionada = ordenInspeccionSeleccionada
+        self.observacionOrdenCierre = observacionOrdenCierre
+        self.listSeleccionMotivo = listSeleccionMotivo
+        self.listComentarioParaMotivo = listComentarioParaMotivo
+        self.estadoCerrado = estadoCerrado
+        self.estadoFueraDeServicio = estadoCerrado
+        self.listMotivoTipo = listMotivoTipo
+        self.listMailsResponsables = listMailsResponsables
+    
 
-    def iniciar_cierre(self):
-        print("Inicio de cierre iniciado.")
+    def buscarRILogueado(self):
+        self.usuarioLogueado = self.sesionActual.obtenerRILogueado()
+        #es una clase empleado
+    #def buscarOIdeRI(self, listaOrdenes):
+        #listaEmpleado = []
+        #for order in listaOrdenes:
+            #if order.sosDeEmpleado():
+                #if order.estado.sosCompletamenteRealizado():
+                    #order.obtenerDatosOI()
 
-    def buscar_orden(self, orden_id):
-        for orden in self.ordenes:
-            if orden.numero_orden == orden_id:
-                return orden
-        return None
+                #listaEmpleado.append(order)
+    
+    def ordenarPorFechaDeFin(self):
+        self.listOrdenesInspeccion.sort(key=lambda x: x.fechaFin, reverse=True)
+  
+    
+    def tomarOISeleccionada(self, ordenInspeccionSeleccionada: OrdenDeInspeccion):
+        self.ordenInspeccionSeleccionada = ordenInspeccionSeleccionada
+    
+    def pedirObservacionOrdenCierre(self):
+        self.observacionOrdenCierre = self.pantallaCierreInspeccion.pedirObservacionOrdenCierre()
+        
+    
 
-    def ingresar_observacion_cierre(self, texto):
-        self.observacion_cierre = texto
+    def tomarObservacionOrdenCierre(self, observacionOrdenCierre: str):
+        self.observacionOrdenCierre = observacionOrdenCierre
+    
+    
 
-    def tomar_seleccion_motivos(self, motivos_comentarios: List[Tuple[str, str]]):
-        self.motivos = motivos_comentarios
 
-    def solicitar_confirmacion_cierre(self, orden_id):
-        orden = self.buscar_orden(orden_id)
-        if orden:
-            print(f"Solicitando confirmación de cierre para la orden {orden.numero_orden}")
-        else:
-            print("Orden no encontrada para confirmación.")
 
-    def confirmar_cierre(self, orden_id):
-        orden = self.buscar_orden(orden_id)
-        if orden and orden.esta_completamente_realizada():
-            # Establecer la fecha de finalización de la orden
-            orden.set_fecha_fin(self.fecha_actual)
+#comparacion#
 
-            # Cambiar estado del sismógrafo
-            sismografo = Sismografo(id="S1", estado="Operativo")  # Aquí deberías cargar el real desde DB
-            sismografo.poner_fuera_de_servicio(self.motivos, self.fecha_actual)
-
-            # Publicar en pantalla de la CCRS
-            PantallaCCRS().publicar()
-
-            # Enviar notificaciones a los responsables
-            responsables = [
-                Empleado("Carlos", "Pérez", "carlos@ejemplo.com"),
-                Empleado("Ana", "López", "ana@ejemplo.com")
-            ]
-            for responsable in responsables:
-                InterfazNotificacionMail().enviar_mail(
-                    responsable.mail,
-                    "Cierre de Inspección",
-                    f"Sismógrafo {sismografo.id} fuera de servicio desde {self.fecha_actual.strftime('%Y-%m-%d %H:%M')}.\n"
-                    f"Motivos: {self.motivos}\n"
-                    f"Observación: {self.observacion_cierre}"
-                )
-            print(f"Orden {orden.numero_orden} cerrada correctamente.")
-        else:
-            print("No se puede cerrar la orden. No está completamente realizada o no se encontró.")
-
-# --- Ejemplo de uso para pruebas ---
-if __name__ == "__main__":
-    from datetime import datetime
-    gestor = GestorCierreInspeccion(
-        empleado_logueado="Juan Pérez",
-        fecha_actual=datetime.now(),
-        mail="juan@empresa.com",
-        sesion_actual="SESION123"
-    )
-
-    # Crear orden simulada con fecha_inicio actual y estado "Completamente Realizada"
-    orden_simulada = OrdenDeInspeccion(
-        numero_orden="123",
-        fecha_inicio=datetime.now(),
-        estado="Completamente Realizada"
-    )
-    gestor.ordenes.append(orden_simulada)
-
-    # Simular ingreso de observación y motivos
-    gestor.ingresar_observacion_cierre("Observación de prueba para cierre.")
-    gestor.tomar_seleccion_motivos([
-        ("Falla eléctrica", "Cortocircuito detectado"),
-        ("Daño físico", "Rotura en carcasa")
-    ])
-
-    # Confirmar cierre de orden
-    gestor.confirmar_cierre("123")
+    # Métodos del diagrama como stubs:
+    def iniciarCierre(self): pass
+    def buscarRILogueado(self): pass
+    def buscarRolDeRI(self): pass
+    def ordenarPorFechaDefFin(self): pass
+    def pedirObservacionOrdenCierre(self): pass
+    def tomarObsOrdenCierre(self): pass
+    def tomarOISeleccionada(self): pass
+    def tomarSeleccionMotivo(self): pass
+    def tomarComentario(self): pass
+    def obtenerConfirmacionOI(self): pass
+    def tomarConfirmacionCierreOI(self): pass
+    def validarDatosMinimosRequeridos(self): pass
+    def cerrarOI(self): pass
+    def getFechaHoraActual(self): pass
+    def actualizarSismografo(self): pass
+    def obtenerMailsResponsablesReparacion(self): pass
+    def enviarNotificacionesPorMail(self): pass
+    def publicarEnMonitores(self): pass
+    def habilitarActualizarSismografo(self): pass
+    def finCU(self): pass
+    
