@@ -7,7 +7,8 @@ class Estado:
         return f"Estado(nombreEstado={self.nombreEstado}, ambito={self.ambito})"
     
     def sosCompletamenteRealizado(self):
-        return self.nombreEstado.lower() == "completamente realizado"
+        if self.sosAmbitoOI():
+            return self.nombreEstado.lower() == "completamente realizado"
     
     def sosCompletamenteRechazado(self):
         return self.nombreEstado.lower() == "completamente rechazado"
