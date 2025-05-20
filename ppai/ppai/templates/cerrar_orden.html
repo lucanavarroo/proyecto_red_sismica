@@ -44,6 +44,17 @@
     </div>
     <button type="submit" class="btn btn-primary">Confirmar Cierre</button>
     <button type="button" class="btn btn-secondary ms-2" onclick="window.location.href='/index'">Cancelar</button>
+    <div id="opciones-cierre" class="mt-4" style="display: none;">
+    <div class="alert alert-success">
+      ¡Cierre de inspección realizado con éxito!
+    </div>
+    <button type="button" class="btn btn-outline-primary me-2" onclick="alert('Mostrar por pantalla (no implementado)')">
+      Mostrar por pantalla
+    </button>
+    <button type="button" class="btn btn-outline-secondary" onclick="alert('Enviar por mail (no implementado)')">
+      Enviar por mail
+    </button>
+</div>
   </form>
   <script>
     async function confirmarCierre() {
@@ -68,8 +79,8 @@
         if (!res.ok) {
           alert("Error: " + (data.error || "Error desconocido"));
         } else {
-          alert(data.mensaje);
           document.querySelector("form").reset();
+          document.getElementById("opciones-cierre").style.display = "block";
         }
       } catch (err) {
         alert("Error en la conexión.");
@@ -77,6 +88,7 @@
         btn.disabled = false;
       }
     }
+
   </script>
 </body>
 </html>
