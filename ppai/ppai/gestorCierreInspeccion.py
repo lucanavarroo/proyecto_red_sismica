@@ -1,7 +1,7 @@
 from datetime import datetime
-from orden_de_inspeccion import OrdenDeInspeccion
+from ordenDeInspeccion import OrdenDeInspeccion
 from pantalla_ccrs import PantallaCCRS
-from interfaz_notificacion_mail import InterfazNotificacionMail
+from interfazNotificacionMail import InterfazNotificacionMail
 from sismografo import Sismografo
 from empleado import Empleado
 from typing import List, Tuple

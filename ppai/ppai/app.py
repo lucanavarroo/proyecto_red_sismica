@@ -2,8 +2,9 @@ from flask import Flask, render_template, request, redirect, url_for, session, j
 from datetime import datetime, timedelta
 import random
 
-from gestor_cierre_inspeccion import GestorCierreInspeccion
-from orden_de_inspeccion import OrdenDeInspeccion
+from gestorCierreInspeccion import GestorCierreInspeccion
+from ordenDeInspeccion import OrdenDeInspeccion
+from estado import Estado
 
 app = Flask(__name__)
 app.secret_key = "clave_secreta_para_sesiones"
