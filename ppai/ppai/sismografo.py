@@ -26,6 +26,17 @@ class Sismografo:
     def habilitarActualizacion(self):
         print("Actualización del sismógrafo habilitada.")
 
-    def cerrarServicio(self):
-        # ESTE HAY QUE DEFINIRLO AL FINAL PORQUE ES COMPLEJO PRIMERO TIENEN QUE ESTAR TODOS LOS DEMAS
-        pass
+    def cerrarServicio(self, responsableInspeccion, motivoFueraServicio: str, fechaHoraInicio: date, fechaHoraFin: date = None):
+        """
+        Cambia el estado del sismógrafo a 'Fuera de Servicio' y registra el cambio.
+        """
+        estado_fuera_servicio = Estado("Sismografo", "Fuera de Servicio")
+        self.setEstadoActual(estado_fuera_servicio)
+        self.crearCambioEstado(
+            fechaCambio=fechaHoraInicio,
+            estado=estado_fuera_servicio,
+            responsableInspeccion=responsableInspeccion,
+            motivoFueraServicio=motivoFueraServicio,
+            fechaHoraInicio=fechaHoraInicio,
+            fechaHoraFin=fechaHoraFin
+        )

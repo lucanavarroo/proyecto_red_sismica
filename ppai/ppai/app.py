@@ -73,6 +73,18 @@ def confirmar():
     observacion = data.get("observacion")
     motivos = data.get("motivos")  # Lista de pares (descripcion, comentario)
 
+    if not motivos or len(motivos) == 0:
+        return jsonify({"error": "Debe seleccionar al menos un motivo y escribir su comentario."}), 400
+
+    if motivos:
+        for motivo in motivos:
+            descripcion, comentario = motivo
+            if not descripcion or descripcion.strip() == "":
+                return jsonify({"error": "No se puede ingresar un comentario sin seleccionar un motivo."}), 400
+            if not comentario or comentario.strip() == "":
+                return jsonify({"error": f"El motivo '{descripcion}' requiere un comentario."}), 400
+
+
     orden = gestor.buscar_orden(orden_id)
     if not orden:
         return jsonify({"error": "Orden no encontrada"}), 404
