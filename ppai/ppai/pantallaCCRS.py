@@ -1,3 +1,3 @@
 class PantallaCCRS:
-    def publicar(self):
-        print("Publicando cierre en la CCRS...")
+    def publicar_cierre(self, ordenInspeccion):
+        print(f"Orden de inspección {ordenInspeccion} publicada en CCRS.")

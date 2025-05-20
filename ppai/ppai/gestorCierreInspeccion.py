@@ -96,7 +96,7 @@ class GestorCierreInspeccion:
             self.cerrarOI()
 
     def validarDatosMinimosRequeridos(self):
-        # Ahora valida también que haya al menos un motivo seleccionado y observación no vacía
+        # Valida que haya una orden seleccionada, observación y al menos un motivo
         return (
             self.ordenInspeccionSeleccionada is not None and
             bool(self.observacionCierre) and
@@ -128,12 +128,62 @@ class GestorCierreInspeccion:
         """
         Habilita la actualización del sismógrafo si la orden seleccionada está cerrada.
         """
-        if self.ordenInspeccionSeleccionada and self.ordenInspeccionSeleccionada.getEstado() == self.estadoCerrado:
-            estacion = self.ordenInspeccionSeleccionada.getEstacionSismologica()
-            if estacion and hasattr(estacion, "sismografo") and estacion.sismografo:
-                if hasattr(estacion.sismografo, "habilitarActualizacion"):
-                    estacion.sismografo.habilitarActualizacion()
-                    return True
-                else:
-                    print("Advertencia: El sismógrafo no tiene el método habilitarActualizacion.")
+        if self.ordenInspeccionSeleccionada:
+            estado_actual = self.ordenInspeccionSeleccionada.getEstado()
+            # Compara por nombre si __eq__ no está implementado
+            if hasattr(estado_actual, "nombreEstado") and hasattr(self.estadoCerrado, "nombreEstado"):
+                estados_iguales = estado_actual.nombreEstado == self.estadoCerrado.nombreEstado
+            else:
+                estados_iguales = estado_actual == self.estadoCerrado
+
+            if estados_iguales:
+                estacion = self.ordenInspeccionSeleccionada.getEstacionSismologica()
+                if estacion and hasattr(estacion, "sismografo") and estacion.sismografo:
+                    if hasattr(estacion.sismografo, "habilitarActualizacion"):
+                        estacion.sismografo.habilitarActualizacion()
+                        return True
+                    else:
+                        print("Advertencia: El sismógrafo no tiene el método habilitarActualizacion.")
         return False
+
+    def getFechaHoraActual(self):
+        return datetime.now()
+
+    def enviarNotificacionesPorMail(self):
+        mails = self.listMailsResponsables if self.listMailsResponsables else []
+        for mail in mails:
+            if self.pantallaMail:
+                self.pantallaMail.enviar_mail(mail, "Cierre de Inspección", "La orden ha sido cerrada.")
+
+    def publicarEnMonitores(self):
+        if self.pantallaCCRS and self.ordenInspeccionSeleccionada:
+            self.pantallaCCRS.publicar_cierre(self.ordenInspeccionSeleccionada)
+
+    def finCU(self):
+        self.ordenInspeccionSeleccionada = None
+        self.observacionCierre = ""
+        self.listSeleccionMotivo = []
+        self.listComentarioParaMotivo = []
+
+    # Métodos auxiliares para integración con Flask o UI
+    def buscar_orden(self, orden_id):
+        for orden in self.listOrdenesInspeccion:
+            if hasattr(orden, "id") and str(orden.id) == str(orden_id):
+                return orden
+        return None
+
+    def ingresarObservacionCierre(self, observacion):
+        self.tomarObsOrdenCierre(observacion)
+
+    def tomarSeleccionMotivos(self, motivos):
+        self.listSeleccionMotivo.clear()
+        self.listComentarioParaMotivo.clear()
+        for motivo, comentario in motivos:
+            self.tomarSeleccionMotivo(motivo)
+            self.tomarComentario(comentario)
+
+    def confirmarCierre(self, orden_id):
+        orden = self.buscar_orden(orden_id)
+        if orden:
+            self.ordenInspeccionSeleccionada = orden
+            self.cerrarOI()

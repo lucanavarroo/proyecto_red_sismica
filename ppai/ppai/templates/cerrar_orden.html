@@ -15,7 +15,7 @@
         <option value="" disabled selected>Seleccione una orden</option>
         {% for orden in ordenes %}
           <option value="{{ orden.id }}">
-            {{ orden.numero_orden }} - {{ orden.fecha_fin.strftime('%d/%m/%Y') }}
+            {{ orden.numeroOrden }} - {{ orden.fechaHoraFinalizacion.strftime('%d/%m/%Y') }}
           </option>
         {% endfor %}
       </select>

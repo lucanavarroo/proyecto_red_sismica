@@ -18,18 +18,19 @@ usuarios = {
 # Instanciamos un gestor (esto debería ir a un archivo separado si crece)
 gestor = GestorCierreInspeccion(
     empleadoLogueado="Juan Pérez",
-    fechaActual=datetime.now(),
-    mail="juan@empresa.com",
+    fechaHoraActual=datetime.now(),
+    mails=["juan@empresa.com"],
     sesionActual="SESION123"
 )
-
 # Cargamos una orden simulada completamente realizada
 orden_simulada = OrdenDeInspeccion(
     numeroOrden="123",
-    fechaInicio=datetime.now(),
-    estado= Estado("Completamente Realizada",)
+    fechaHoraInicio=datetime.now(),
+    fechaHoraFinalizacion=datetime.now(),
+    estado=Estado("OI", "Completamente Realizada")
 )
-gestor.ordenes.append(orden_simulada)
+orden_simulada.id = "0"
+gestor.listOrdenesInspeccion.append(orden_simulada)
 
 # --- Rutas de la app ---
 
@@ -87,24 +88,23 @@ def cerrar_orden():
     if not session.get("usuario"):
         return redirect(url_for("login"))
     
-    # Generar 10 órdenes aleatorias con fecha_fin
-    ordenes = []
-    baseFecha = datetime.now()
-    for i in range(10):
-        dias = random.randint(1, 100)
-        fechaFin = baseFecha - timedelta(days=dias)
-        orden = OrdenDeInspeccion(
-            numeroOrden=str(1000 + i),
-            fechaInicio=fechaFin - timedelta(days=random.randint(1, 10)),
-            fechaFin=fechaFin,
-            estado="Completamente Realizada"
-        )
-        # Agregamos un id único para el select
-        orden.id = f"{i+1}"
-        ordenes.append(orden)
+    # Solo genera órdenes si la lista está vacía (para mantener consistencia)
+    if len(gestor.listOrdenesInspeccion) <= 1:  # solo la simulada
+        baseFecha = datetime.now()
+        for i in range(10):
+            dias = random.randint(1, 100)
+            fechaFin = baseFecha - timedelta(days=dias)
+            orden = OrdenDeInspeccion(
+                numeroOrden=str(1000 + i),
+                fechaHoraInicio=fechaFin - timedelta(days=random.randint(1, 10)),
+                fechaHoraFinalizacion=fechaFin,
+                estado=Estado("OI", "Completamente Realizada")
+            )
+            orden.id = f"{i+1}"
+            gestor.listOrdenesInspeccion.append(orden)
     
-    # Ordenar por fecha_fin descendente (más reciente primero)
-    ordenes.sort(key=lambda o: o.fechaFin, reverse=True)
+    # Ordenar por fechaHoraFinalizacion descendente (más reciente primero)
+    ordenes = sorted(gestor.listOrdenesInspeccion, key=lambda o: o.fechaHoraFinalizacion, reverse=True)
     
     return render_template(
         "cerrar_orden.html",
